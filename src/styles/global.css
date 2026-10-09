@@ -1,4 +1,4 @@
-@import '@fontsource/gloock/400.css';
+@import '@fontsource-variable/literata/opsz.css';
 @import '@fontsource-variable/instrument-sans/wght.css';
 @import 'tailwindcss';
 
@@ -17,7 +17,7 @@
 	--color-comb: #c3bda4;
 	--color-resin: #8a4b2a;
 
-	--font-display: 'Gloock', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+	--font-display: 'Literata Variable', Literata, Georgia, 'Times New Roman', serif;
 	--font-sans: 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif;
 
 	--text-hero: clamp(3rem, 7vw, 6.25rem);

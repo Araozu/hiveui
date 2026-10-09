@@ -34,7 +34,7 @@ public/
 ## Design notes
 
 - Tokens live in `src/styles/global.css` under `@theme`: six colours (wax,
-  paper, propolis, honey, comb, resin) and two typefaces (Gloock for display,
+  paper, propolis, honey, comb, resin) and two typefaces (Literata for display,
   Instrument Sans for text).
 - Honey marks live work only. Hexagons are pointy-top, with flat sides left and
   right, in the logo and in the comb.
