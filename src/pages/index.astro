@@ -1,0 +1,295 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Comb from '../components/Comb.astro';
+import HexMark from '../components/HexMark.astro';
+
+const title = 'Hive: start the work at home';
+const description =
+	'Hive runs AI agents on the machines you own. Tasks keep going when you close the client, and each session keeps its full history.';
+
+// Pointy-top hexagon, the same orientation as the placeholder logo.
+const hex = '50,4 89.8,27 89.8,73 50,96 10.2,73 10.2,27';
+
+const steps = [
+	{
+		name: 'Start',
+		text: 'Start a task from the CLI or a script on any machine. Hive records the request and returns durable IDs before any work begins.',
+	},
+	{
+		name: 'Leave',
+		text: 'Close the client. The daemon owns the work, so quitting or crashing a client cancels nothing it has already accepted.',
+	},
+	{
+		name: 'Return',
+		text: 'Reconnect and catch up on the events you missed. A correction shows as queued until the daemon accepts it.',
+	},
+];
+
+const machines = [
+	{
+		name: 'Home PC',
+		text: 'Linux. Runs its own sessions and keeps their history on its own disk.',
+	},
+	{
+		name: 'Work PC',
+		text: 'Windows. Runs its own sessions, with its own tested process and path behavior.',
+	},
+	{
+		name: 'Dual-boot machine',
+		text: 'One hive per operating system. Each install runs its own daemon.',
+	},
+	{
+		name: 'Phone',
+		text: 'A client. It sends instructions and shows what a hive reports. It never runs the work.',
+	},
+];
+
+const record = [
+	{
+		title: 'Restarts do not repeat work.',
+		text: 'A tool call that was running when the daemon stopped is recorded as failed, with the cause. Hive does not rerun it, because it may already have changed something.',
+	},
+	{
+		title: 'Every change is committed first.',
+		text: 'State and its events are written to disk together, before any client sees them. Reconnecting shows what actually happened.',
+	},
+	{
+		title: 'Long output is stored, not repeated.',
+		text: 'Command output streams into capped buffers and becomes an artifact. Events point to it instead of copying it.',
+	},
+];
+
+const available = [
+	{
+		name: 'Durable sessions.',
+		text: 'Create, leave, reconnect, and cancel a running turn. History loads in pages.',
+	},
+	{
+		name: 'Coding tools.',
+		text: 'Read, write, and edit files, and run shell commands, inside a chosen workspace with output and time limits.',
+	},
+	{
+		name: 'Direct model calls.',
+		text: 'Hive talks to providers itself, with no external agent CLI in the loop. OpenCode Go works today.',
+	},
+	{
+		name: 'Scriptable CLI.',
+		text: 'JSON output and stable command IDs, so a retry after a dropped connection does not create a duplicate.',
+	},
+];
+
+const planned = [
+	{
+		name: 'Worktrees per task.',
+		text: 'Each writable task gets its own Git worktree, with a diff you can inspect.',
+	},
+	{
+		name: 'Batches.',
+		text: 'Expand a matrix of prompts, models, and settings into a bounded run. Retry only the failures.',
+	},
+	{
+		name: 'Child tasks.',
+		text: 'Agents start their own sub-tasks, within budgets and limits you set.',
+	},
+	{
+		name: 'Remote control.',
+		text: 'Steer a hive from another machine over Tailscale, and from a phone through a web client.',
+	},
+];
+---
+
+<Layout title={title} description={description}>
+	<a
+		href="#main"
+		class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-sm focus:bg-paper focus:px-4 focus:py-2"
+	>
+		Skip to content
+	</a>
+
+	<header id="top" class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-10 gap-y-5 px-6 pt-8 md:px-10">
+		<a href="#top" class="inline-flex items-center gap-3">
+			<HexMark class="size-9" />
+			<span class="font-display text-[1.7rem] leading-none tracking-tight">Hive</span>
+		</a>
+		<nav aria-label="Sections">
+			<ul class="flex flex-wrap gap-x-7 gap-y-2 text-[0.975rem]">
+				<li><a href="#how-it-works" class="hover:text-resin">How it works</a></li>
+				<li><a href="#machines" class="hover:text-resin">Machines</a></li>
+				<li><a href="#record" class="hover:text-resin">Record</a></li>
+				<li><a href="#status" class="hover:text-resin">Status</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main id="main">
+		<section class="mx-auto grid max-w-6xl items-center gap-16 px-6 pt-16 pb-28 md:px-10 md:pt-24 lg:grid-cols-12 lg:gap-10">
+			<div class="lg:col-span-7">
+				<h1 class="font-display text-hero leading-[0.96] tracking-[-0.025em] text-balance">
+					Start the work at home. Check it from anywhere.
+				</h1>
+				<p class="mt-9 max-w-[44ch] text-xl leading-relaxed text-propolis/85">
+					Hive runs AI agents on the machines you own. Tasks keep going when you close the client, and
+					each session keeps its full history.
+				</p>
+				<p class="mt-10">
+					<a href="#how-it-works" class="link-honey text-lg font-medium hover:text-resin">See how a task travels</a>
+				</p>
+			</div>
+			<div class="lg:col-span-5">
+				<Comb />
+			</div>
+		</section>
+
+		<section id="how-it-works" class="py-28">
+			<div class="mx-auto grid max-w-6xl gap-16 px-6 md:px-10 lg:grid-cols-12 lg:gap-10">
+				<div class="lg:col-span-5">
+					<h2 class="font-display text-display leading-[1.02] tracking-[-0.02em] text-balance">
+						Closing the window doesn't stop the work.
+					</h2>
+					<p class="mt-6 max-w-[40ch] text-lg text-propolis/80">
+						A task belongs to the daemon on its machine, not to the window that started it.
+					</p>
+				</div>
+				<ol class="space-y-14 lg:col-span-6 lg:col-start-7">
+					{
+						steps.map((step, i) => (
+							<li class="relative pl-16 not-last:before:absolute not-last:before:-bottom-14 not-last:before:left-[19px] not-last:before:top-10 not-last:before:w-0 not-last:before:border-l-2 not-last:before:border-dashed not-last:before:border-comb not-last:before:content-['']">
+								<svg class="absolute top-0 left-0 size-10" viewBox="0 0 100 100" aria-hidden="true">
+									<polygon
+										points={hex}
+										fill={i === steps.length - 1 ? 'var(--color-honey)' : 'var(--color-paper)'}
+										stroke="var(--color-propolis)"
+										stroke-width="6"
+									/>
+								</svg>
+								<h3 class="font-display text-2xl">{step.name}</h3>
+								<p class="mt-2 max-w-[52ch] text-lg text-propolis/80">{step.text}</p>
+							</li>
+						))
+					}
+				</ol>
+			</div>
+		</section>
+
+		<section id="machines" class="py-28">
+			<div class="mx-auto grid max-w-6xl gap-16 px-6 md:px-10 lg:grid-cols-12 lg:gap-10">
+				<div class="lg:col-span-5">
+					<h2 class="font-display text-display leading-[1.02] tracking-[-0.02em] text-balance">
+						One hive per machine.
+					</h2>
+					<p class="mt-6 max-w-[40ch] text-lg text-propolis/80">
+						Each operating system install runs one hive daemon. It owns that machine's sessions, files,
+						and history. Clients attach to a hive and never own the work.
+					</p>
+					<p class="mt-6 max-w-[40ch] text-lg text-propolis/80">
+						Nothing needs a central server to work. Remote access is planned over Tailscale.
+					</p>
+				</div>
+				<dl class="grid gap-x-12 gap-y-12 sm:grid-cols-2 lg:col-span-6 lg:col-start-7">
+					{
+						machines.map((machine) => (
+							<div>
+								<dt class="font-display text-2xl">{machine.name}</dt>
+								<dd class="mt-3 max-w-[30ch] text-lg text-propolis/80">{machine.text}</dd>
+							</div>
+						))
+					}
+				</dl>
+			</div>
+		</section>
+
+		<section id="record" class="bg-propolis py-28 text-wax">
+			<div class="mx-auto max-w-6xl px-6 md:px-10">
+				<div class="max-w-[36ch]">
+					<h2 class="font-display text-display leading-[1.02] tracking-[-0.02em] text-balance">
+						A record, not a process.
+					</h2>
+					<p class="mt-6 max-w-[48ch] text-lg text-wax/75">
+						A session is stored as a durable record. A running process is only the current attempt to add
+						to it.
+					</p>
+				</div>
+				<ul class="mt-20 grid gap-14 md:grid-cols-3 md:gap-10">
+					{
+						record.map((item) => (
+							<li>
+								<h3 class="font-display text-2xl text-honey">{item.title}</h3>
+								<p class="mt-4 max-w-[34ch] text-lg text-wax/80">{item.text}</p>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+		</section>
+
+		<section id="status" class="py-28">
+			<div class="mx-auto max-w-6xl px-6 md:px-10">
+				<div class="max-w-[40ch]">
+					<h2 class="font-display text-display leading-[1.02] tracking-[-0.02em] text-balance">
+						What works now, and what is planned.
+					</h2>
+					<p class="mt-6 text-lg text-propolis/80">
+						Hive is in early development. This list separates what runs today from what is still planned.
+					</p>
+				</div>
+
+				<div class="mt-20 grid gap-16 md:grid-cols-2 md:gap-14">
+					<div>
+						<h3 class="font-display text-2xl">Available now</h3>
+						<ul class="mt-8 space-y-8">
+							{
+								available.map((item) => (
+									<li class="relative pl-10">
+										<svg class="absolute top-1.5 left-0 size-6" viewBox="0 0 100 100" aria-hidden="true">
+											<polygon points={hex} fill="var(--color-honey)" stroke="var(--color-propolis)" stroke-width="6" />
+										</svg>
+										<p class="max-w-[46ch] text-lg">
+											<strong class="font-semibold">{item.name}</strong>{' '}
+											<span class="text-propolis/80">{item.text}</span>
+										</p>
+									</li>
+								))
+							}
+						</ul>
+					</div>
+					<div>
+						<h3 class="font-display text-2xl">Planned</h3>
+						<ul class="mt-8 space-y-8">
+							{
+								planned.map((item) => (
+									<li class="relative pl-10">
+										<svg class="absolute top-1.5 left-0 size-6" viewBox="0 0 100 100" aria-hidden="true">
+											<polygon points={hex} fill="var(--color-paper)" stroke="var(--color-propolis)" stroke-width="6" stroke-dasharray="10 8" />
+										</svg>
+										<p class="max-w-[46ch] text-lg">
+											<strong class="font-semibold">{item.name}</strong>{' '}
+											<span class="text-propolis/80">{item.text}</span>
+										</p>
+									</li>
+								))
+							}
+						</ul>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="mx-auto max-w-6xl px-6 pt-8 pb-32 md:px-10">
+			<h2 class="font-display text-display leading-[1.02] tracking-[-0.02em] text-balance max-w-[18ch]">
+				Your hive stays on your machines.
+			</h2>
+			<p class="mt-8 max-w-[52ch] text-lg text-propolis/80">
+				Each hive keeps its sessions, files, and provider credentials in its private data directory. Work does
+				not depend on any client staying connected.
+			</p>
+		</section>
+	</main>
+
+	<footer class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6 px-6 pt-4 pb-12 text-[0.95rem] text-propolis/70 md:px-10">
+		<p class="flex items-center gap-3">
+			<HexMark class="size-5" />
+			Hive is in early development.
+		</p>
+		<a href="#top" class="link-honey hover:text-resin">Back to top</a>
+	</footer>
+</Layout>

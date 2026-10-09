@@ -1,0 +1,253 @@
+---
+/*
+ * Hero illustration: a pointy-top honeycomb of 19 cells, where each cell is a
+ * session. Honey = running. Capped = finished and kept. Open = waiting for
+ * input. The line follows one session through the machines it has touched.
+ */
+
+type State = 'running' | 'capped' | 'open';
+
+const S = 46; // circumradius of a cell, in viewBox units
+const DRAWN = 0.92; // fraction of the circumradius actually drawn, leaving a seam
+const PAD = 10;
+
+// One session's path through the comb, in visiting order. The last cell is live.
+const trail: [number, number][] = [
+	[-2, 1],
+	[-1, 0],
+	[0, 0],
+	[1, -1],
+	[2, -2],
+];
+
+const states = new Map<string, State>([
+	['-2,0', 'running'],
+	['-2,1', 'capped'],
+	['-2,2', 'capped'],
+	['-1,-1', 'capped'],
+	['-1,0', 'capped'],
+	['-1,1', 'open'],
+	['-1,2', 'running'],
+	['0,-2', 'capped'],
+	['0,-1', 'open'],
+	['0,0', 'capped'],
+	['0,1', 'running'],
+	['0,2', 'capped'],
+	['1,-2', 'open'],
+	['1,-1', 'capped'],
+	['1,0', 'capped'],
+	['1,1', 'running'],
+	['2,-2', 'running'],
+	['2,-1', 'capped'],
+	['2,0', 'open'],
+]);
+
+const sqrt3 = Math.sqrt(3);
+const f = (n: number) => Number(n.toFixed(2));
+
+// Axial coordinates (q, r) for a hexagon of radius 2: 19 cells.
+const cells = [];
+for (let q = -2; q <= 2; q++) {
+	for (let r = -2; r <= 2; r++) {
+		if (Math.abs(q + r) > 2) continue;
+		const cx = sqrt3 * S * (q + r / 2);
+		const cy = 1.5 * S * r;
+		cells.push({ q, r, cx, cy, state: states.get(`${q},${r}`) ?? 'open' });
+	}
+}
+
+// Pointy-top hexagon points for a centre and radius.
+const hexPoints = (cx: number, cy: number, radius: number) =>
+	[0, 1, 2, 3, 4, 5]
+		.map((k) => {
+			const angle = ((-90 + 60 * k) * Math.PI) / 180;
+			return `${f(cx + radius * Math.cos(angle))},${f(cy + radius * Math.sin(angle))}`;
+		})
+		.join(' ');
+
+const half = (sqrt3 * S) / 2;
+const minX = Math.min(...cells.map((c) => c.cx)) - half - PAD;
+const maxX = Math.max(...cells.map((c) => c.cx)) + half + PAD;
+const minY = Math.min(...cells.map((c) => c.cy)) - S - PAD;
+const maxY = Math.max(...cells.map((c) => c.cy)) + S + PAD;
+const viewBox = `${f(minX)} ${f(minY)} ${f(maxX - minX)} ${f(maxY - minY)}`;
+
+const trailPoints = trail.map(([q, r]) => {
+	const cx = sqrt3 * S * (q + r / 2);
+	const cy = 1.5 * S * r;
+	return { cx: f(cx), cy: f(cy) };
+});
+const trailD = trailPoints
+	.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.cx} ${p.cy}`)
+	.join(' ');
+
+const legend: { state: State; label: string }[] = [
+	{ state: 'running', label: 'Running' },
+	{ state: 'capped', label: 'Finished and kept' },
+	{ state: 'open', label: 'Waiting for input' },
+];
+---
+
+<figure class="comb">
+	<svg class="w-full" viewBox={viewBox} role="img" aria-labelledby="comb-title comb-desc">
+		<title id="comb-title">A honeycomb of sessions</title>
+		<desc id="comb-desc">
+			Nineteen cells, each a session. Some are running, some are finished and kept, and some are
+			waiting for input. A line follows one session across machines.
+		</desc>
+
+		<g>
+			{
+				cells.map((c, i) => {
+					const radius = S * DRAWN;
+					const points = hexPoints(c.cx, c.cy, radius);
+					if (c.state === 'running') {
+						return (
+							<polygon
+								class="comb-cell"
+								style={`--i:${i}`}
+								points={points}
+								fill="var(--color-honey)"
+							/>
+						);
+					}
+					if (c.state === 'capped') {
+						return (
+							<g class="comb-cell" style={`--i:${i}`}>
+								<polygon points={points} fill="var(--color-comb)" />
+								<polygon
+									points={hexPoints(c.cx, c.cy, radius * 0.6)}
+									fill="none"
+									stroke="var(--color-paper)"
+									stroke-width="3"
+								/>
+							</g>
+						);
+					}
+					return (
+						<polygon
+							class="comb-cell"
+							style={`--i:${i}`}
+							points={points}
+							fill="var(--color-paper)"
+							stroke="var(--color-comb)"
+							stroke-width="3"
+						/>
+					);
+				})
+			}
+		</g>
+
+		<path
+			class="trail-line"
+			d={trailD}
+			pathLength="1"
+			fill="none"
+			stroke="var(--color-propolis)"
+			stroke-width="4"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+		/>
+
+		<g>
+			{
+				trailPoints.map((p, i) => (
+					<circle
+						class="trail-dot"
+						style={`--i:${i}`}
+						cx={p.cx}
+						cy={p.cy}
+						r={i === trailPoints.length - 1 ? 9 : 6}
+						fill={i === trailPoints.length - 1 ? 'var(--color-honey)' : 'var(--color-propolis)'}
+						stroke={i === trailPoints.length - 1 ? 'var(--color-propolis)' : 'none'}
+						stroke-width="3"
+					/>
+				))
+			}
+		</g>
+	</svg>
+
+	<figcaption class="mt-8">
+		<ul class="flex flex-wrap gap-x-6 gap-y-3 text-[0.95rem] text-propolis/80">
+			{
+				legend.map((item) => (
+					<li class="flex items-center gap-2">
+						<svg class="size-4" viewBox="0 0 100 100" aria-hidden="true">
+							<polygon
+								points={hexPoints(50, 50, 46)}
+								fill={
+									item.state === 'running'
+										? 'var(--color-honey)'
+										: item.state === 'capped'
+											? 'var(--color-comb)'
+											: 'var(--color-paper)'
+								}
+								stroke={item.state === 'open' ? 'var(--color-comb)' : 'none'}
+								stroke-width="8"
+							/>
+						</svg>
+						{item.label}
+					</li>
+				))
+			}
+		</ul>
+	</figcaption>
+</figure>
+
+<style>
+	.comb-cell {
+		transform-box: fill-box;
+		transform-origin: center;
+		animation: cell-in 720ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+		animation-delay: calc(var(--i) * 45ms + 120ms);
+	}
+
+	.trail-line {
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+		animation: trail-draw 1500ms cubic-bezier(0.45, 0, 0.2, 1) 1000ms forwards;
+	}
+
+	.trail-dot {
+		animation: dot-in 420ms ease-out both;
+		animation-delay: calc(var(--i) * 300ms + 1000ms);
+	}
+
+	@keyframes cell-in {
+		from {
+			opacity: 0;
+			transform: scale(0.5);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	@keyframes trail-draw {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+
+	@keyframes dot-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.comb-cell,
+		.trail-dot {
+			animation: none;
+		}
+
+		.trail-line {
+			animation: none;
+			stroke-dashoffset: 0;
+		}
+	}
+</style>
